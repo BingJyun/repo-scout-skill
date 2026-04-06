@@ -1,3 +1,8 @@
+---
+name: repo-scout
+description: Comprehensive GitHub repo analysis covering architecture, OWASP Top 10 security scanning (with file path + line number + fix), 5-dimension strategic value assessment (cost savings, efficiency, new projects, revenue, community impact), auto-competitor discovery, and optional Traditional Chinese audio review via NotebookLM. Use this skill when the user wants to analyze, audit, evaluate, scout, or assess any GitHub repo or local codebase. Also trigger when the user asks about a repo's security risks, tech stack, strategic value, or wants to compare repos. Trigger for any prompt containing /repo-scout.
+---
+
 # /repo-scout
 
 Scout GitHub repos for security, value, and opportunity — with optional audio review.
@@ -200,6 +205,7 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
    - After 10 minutes, call `studio_status` every 1 minute
    - Continue polling until status is complete / download URL is available
    - If still not complete after 25 minutes total, inform user and keep polling every 2 minutes
+   - **If the Claude Code session ends before audio completes**: note the notebook ID printed above. Go to notebooklm.google.com, open the notebook, and download the audio from the Studio section when it finishes generating.
 
 6. Download audio using MCP tool `download_artifact`:
    - Save to report directory

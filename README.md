@@ -13,17 +13,40 @@ A Claude Code skill that performs comprehensive GitHub repo analysis — archite
 
 ## Installation
 
+Claude Code does not yet support installing community skills directly from GitHub URLs. Install manually:
+
 ```bash
-claude skills add https://github.com/bingjyun/repo-scout-skill
+# Create the skill directory
+mkdir -p ~/.claude/skills/repo-scout
+
+# Download SKILL.md
+curl -o ~/.claude/skills/repo-scout/SKILL.md \
+  https://raw.githubusercontent.com/bingjyun/repo-scout-skill/main/SKILL.md
 ```
+
+Then restart Claude Code. The `/repo-scout` skill will be available automatically.
 
 ## Dependencies
 
 | Dependency | Required | Purpose | Install |
 |---|---|---|---|
 | DeepWiki MCP | **Yes** | Repo architecture overview without cloning | `claude mcp add deepwiki -- npx @anthropic-ai/deepwiki-mcp@latest` |
-| NotebookLM MCP | Only for `--audio` | Generate Traditional Chinese audio review | `claude mcp add notebooklm -- npx notebooklm-mcp@latest` |
-| Trail of Bits skills | No | Enhanced security scanning (skill works without it) | `claude plugin marketplace add trailofbits/skills` |
+| NotebookLM MCP | Only for `--audio` | Generate Traditional Chinese audio review | See below |
+
+### NotebookLM MCP Setup (for `--audio`)
+
+```bash
+# Install the CLI
+uv tool install notebooklm-mcp-cli
+
+# Authenticate (opens browser for Google OAuth, one-time)
+nlm login
+
+# Register MCP server for Claude Code
+nlm setup add claude-code
+```
+
+Then restart Claude Code.
 
 ## Usage
 
