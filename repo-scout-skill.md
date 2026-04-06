@@ -36,9 +36,10 @@ Before starting, verify these MCP servers are available. If any are missing, gui
 # Required: DeepWiki MCP (free, no auth)
 claude mcp add deepwiki -- npx @anthropic-ai/deepwiki-mcp@latest
 
-# Required for --audio: NotebookLM MCP
-claude mcp add notebooklm -- npx notebooklm-mcp@latest
-# Then authenticate: nlm auth login
+# Required for --audio: NotebookLM MCP CLI (supports create/upload/generate)
+uv tool install notebooklm-mcp-cli   # uv recommended by repo
+nlm login                             # browser OAuth, one-time
+nlm setup add claude-code             # auto-registers MCP for Claude Code
 
 # Optional: Trail of Bits security skills (enhanced scanning)
 claude plugin marketplace add trailofbits/skills
@@ -170,24 +171,38 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
 
 **This step MUST succeed. No fallback. No degradation.**
 
-1. Verify NotebookLM MCP is connected
+1. Verify `notebooklm-mcp-cli` MCP server is connected
    - If not connected → Stop and guide installation:
+     ```bash
+     uv tool install notebooklm-mcp-cli
+     nlm login
+     nlm setup add claude-code
+     # Then restart Claude Code to load the new MCP
      ```
-     claude mcp add notebooklm -- npx notebooklm-mcp@latest
-     ```
-   - If auth failed → Guide re-authentication: `nlm auth login`
-   - Keep trying until connected successfully
+   - If auth failed → Guide re-authentication: `nlm login`
+   - Keep retrying until connected successfully
 
-2. Create NotebookLM notebook: "[Repo Name] Scout Report"
+2. Create notebook using MCP tool `notebook_create`:
+   - Title: "[Repo Name] Scout Report"
 
-3. Upload the analysis report MD file as source
+3. Add the report as source using MCP tool `source_add`:
+   - Type: "Text"
+   - Content: full markdown content of the report generated in Step 7
 
-4. Set language: Traditional Chinese (zh-TW)
+4. Generate Audio Overview using MCP tool `studio_create`:
+   - Type: "audio"
+   - Language: "zh-TW" (Traditional Chinese)
+   - Custom prompt: "重點講解：安全漏洞發現、商業價值評估、以及建議的行動方案"
 
-5. Generate Audio Overview
-   - Highlight: security findings + business value + recommended actions
+5. Poll for completion — audio generation takes 10–20 minutes:
+   - Inform user: "音頻生成中，預計需要 10–20 分鐘，先等 10 分鐘後開始確認…"
+   - Wait 10 minutes (initial cooldown — do not poll during this time)
+   - After 10 minutes, call `studio_status` every 1 minute
+   - Continue polling until status is complete / download URL is available
+   - If still not complete after 25 minutes total, inform user and keep polling every 2 minutes
 
-6. Download audio file to report directory
+6. Download audio using MCP tool `download_artifact`:
+   - Save to report directory
    - Filename: `<repo-name>-audio-review.mp3`
 
 7. Append audio file link to the end of the report
