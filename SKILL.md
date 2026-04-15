@@ -1,6 +1,6 @@
 ---
 name: repo-scout
-description: Comprehensive GitHub repo analysis covering architecture, OWASP Top 10 security scanning (with file path + line number + fix), 5-dimension strategic value assessment (cost savings, efficiency, new projects, revenue, community impact), auto-competitor discovery, and optional Traditional Chinese audio review via NotebookLM. Use this skill when the user wants to analyze, audit, evaluate, scout, or assess any GitHub repo or local codebase. Also trigger when the user asks about a repo's security risks, tech stack, strategic value, or wants to compare repos. Trigger for any prompt containing /repo-scout.
+description: Comprehensive GitHub repo analysis covering architecture, OWASP Top 10 security scanning (with file path + line number + fix), 4-dimension strategic value assessment (cost savings, efficiency, startup opportunities, community impact), auto-competitor discovery, and optional Traditional Chinese audio review via NotebookLM. Use this skill when the user wants to analyze, audit, evaluate, scout, or assess any GitHub repo or local codebase. Also trigger when the user asks about a repo's security risks, tech stack, strategic value, or wants to compare repos. Trigger for any prompt containing /repo-scout.
 ---
 
 # /repo-scout
@@ -27,7 +27,7 @@ Scout GitHub repos for security, value, and opportunity — with optional audio 
 Performs a comprehensive analysis of GitHub repos, covering:
 1. **Architecture & functionality** (accelerated by DeepWiki MCP)
 2. **Security scanning** (OWASP Top 10, hardcoded secrets, dependency audit)
-3. **Strategic value assessment** (5 dimensions: save money, boost efficiency, new projects, revenue, community impact)
+3. **Strategic value assessment** (4 dimensions: save money, boost efficiency, startup opportunities, community impact)
 4. **Competitor discovery** (auto-search similar repos by stars)
 5. **Audio review** (Traditional Chinese podcast-style via NotebookLM)
 
@@ -39,7 +39,8 @@ Before starting, verify these MCP servers are available. If any are missing, gui
 
 ```bash
 # Required: DeepWiki MCP (free, no auth)
-claude mcp add deepwiki -- npx @anthropic-ai/deepwiki-mcp@latest
+# Docs: https://docs.devin.ai/work-with-devin/deepwiki-mcp
+claude mcp add -s user -t http deepwiki https://mcp.deepwiki.com/mcp
 
 # Required for --audio: NotebookLM MCP CLI (supports create/upload/generate)
 uv tool install notebooklm-mcp-cli   # uv recommended by repo
@@ -47,7 +48,8 @@ nlm login                             # browser OAuth, one-time
 nlm setup add claude-code             # auto-registers MCP for Claude Code
 
 # Optional: Trail of Bits security skills (enhanced scanning)
-claude plugin marketplace add trailofbits/skills
+# Run inside Claude Code:
+/plugin marketplace add trailofbits/skills
 ```
 
 ---
@@ -84,21 +86,30 @@ git clone --depth 1 <url> /tmp/repo-scout/<repo-name>/
 
 For local paths, use them directly.
 
-### Step 4 — Deep Exploration (3 Agents in Parallel)
+### Step 4 — Deep Exploration (2 Agents in Parallel)
 
-Launch 3 Explore agents simultaneously in a single message:
+Launch 2 Explore agents simultaneously in a single message:
 
-**Agent 1 — Architecture & Features:**
+**Agent 1 — Architecture, Features & Ecosystem Health:**
 - Use DeepWiki overview as starting context (don't explore from scratch)
 - Supplement with details DeepWiki missed: implementation logic, code quality
 - Verify DeepWiki's descriptions against actual source code
-- Output: complete technical overview with tech stack, features, API surface
+- Also record: GitHub stars, forks, open issues, recent commit frequency, license type and commercial use restrictions
+- Output: complete technical overview with tech stack, features, API surface, and project health summary
 
 **Agent 2 — Security Deep Scan:**
-Read ALL source files. Check for:
+Focus on security hotspots — do NOT read every file. Target:
+- Entry points and routing files
+- Authentication and authorization modules
+- Files that handle user input or external data
+- Config and environment files (.env, config.*)
+- Dependency manifests (package.json, go.mod, Cargo.toml, requirements.txt)
+- Docker configs and CI pipeline files
+
+Check for:
 - OWASP Top 10 (injection, broken auth, XSS, SSRF, etc.)
 - Hardcoded secrets, API keys, tokens, credentials
-- Dependency vulnerabilities (check package.json/go.mod/Cargo.toml versions)
+- Dependency vulnerabilities (check manifest file versions)
 - Docker security (root user, exposed ports, secrets in image)
 - Input validation (SQL injection, command injection, path traversal)
 - Authentication/authorization flaws
@@ -109,12 +120,6 @@ Read ALL source files. Check for:
 If Trail of Bits skills are installed, additionally run:
 - Sharp Edges scan (dangerous APIs, footgun designs)
 - Audit Context Building (cross-function data flow tracing)
-
-**Agent 3 — Ecosystem & Community:**
-- GitHub stars, forks, open issues, PR activity
-- Recent commit frequency, maintainer activity
-- License type and commercial use restrictions
-- Output: project health assessment
 
 ### Step 5 — Auto-Discover Similar Repos (if --discover)
 
@@ -134,9 +139,13 @@ If Trail of Bits skills are installed, additionally run:
 
 ### Step 6 — Strategic Value Assessment
 
-Read user memories to understand their role, tools, budget, and goals. Evaluate from 5 dimensions:
+Launch a **general-purpose Agent** for creative ideation. Provide as context:
+- Full repo overview from Step 4 (tech stack, features, category)
+- User memories (role, tools, budget, goals)
 
-**1. 💰 Cost Savings**
+Instruct the Agent to evaluate from 4 dimensions, with emphasis on concrete startup ideas:
+
+**1. 💰 Cost Savings Potential**
 - What paid services does this replace? How much saved?
 - ROI calculation
 
@@ -144,24 +153,19 @@ Read user memories to understand their role, tools, budget, and goals. Evaluate 
 - What processes does it automate?
 - How much development time saved?
 
-**3. 📦 New Project Opportunities**
-- What products can be forked/built from this?
-- Unmet market needs?
-- SaaS potential?
+**3. 🏢 Startup Opportunities (New Projects + Revenue Potential Combined)**
+This is the most important dimension. Think ambitiously:
+- What specific real-world problems can this technology solve commercially?
+- Products can be physical or virtual — SaaS, API services, physical hardware integration, consulting, training courses, etc.
+- Use WebSearch to check if similar products already exist (avoid saturated markets)
+- Each idea must have a concrete form: who pays, how much, what problem is solved
+- Consider derivative products that go beyond the repo's obvious use case
 
-**4. 💵 Revenue Potential**
-- How can this technology solve client problems?
-- Can it become a paid tool/course/consulting service?
-- Educational value for AI newcomers? Tutorial potential?
-- Can it help others (AI newbies, specific communities)?
+**4. 🌍 Community Impact (Brief, 3 points max)**
+- Key contribution opportunities (PRs, issues)
+- One notable community or educational angle
 
-**5. 🌍 Community & Influence**
-- What PRs can be contributed back?
-- Technical article opportunities?
-- Community building potential?
-- Helping AI newcomers get started?
-
-Be **creative and ambitious** in this section. Think beyond obvious uses. Consider derivative products, teaching opportunities, and community impact.
+Be **creative and ambitious** in dimension 3. Do not give generic advice that applies to every repo.
 
 ### Step 7 — Generate Report
 
@@ -197,21 +201,12 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
 4. Generate Audio Overview using MCP tool `studio_create`:
    - Type: "audio"
    - Language: "zh-TW" (Traditional Chinese)
-   - Custom prompt: "重點講解：安全漏洞發現、商業價值評估、以及建議的行動方案"
+   - Custom prompt: "As a two-host podcast conversation, discuss this technical reconnaissance report in depth. The show is divided into three acts: Act One (Security): Analyze the discovered vulnerabilities in detail, explain how attackers would actually exploit them, and prioritize fixes; Act Two (Business Opportunities): Mine startup ideas from this technology—what specific problems can be commercialized? What forms could derivative products take (physical or virtual services)? Act Three (Action): If the audience members are developers or product managers, what three actions should they take in the next two weeks? Use a lively tone, avoid simply reading the report, and make it understandable for non-technical listeners."
 
-5. Poll for completion — audio generation takes 10–20 minutes:
-   - Inform user: "音頻生成中，預計需要 10–20 分鐘，先等 10 分鐘後開始確認…"
-   - Wait 10 minutes (initial cooldown — do not poll during this time)
-   - After 10 minutes, call `studio_status` every 1 minute
-   - Continue polling until status is complete / download URL is available
-   - If still not complete after 25 minutes total, inform user and keep polling every 2 minutes
-   - **If the Claude Code session ends before audio completes**: note the notebook ID printed above. Go to notebooklm.google.com, open the notebook, and download the audio from the Studio section when it finishes generating.
-
-6. Download audio using MCP tool `download_artifact`:
-   - Save to report directory
-   - Filename: `<repo-name>-audio-review.mp3`
-
-7. Append audio file link to the end of the report
+5. Note the notebook URL and inform the user:
+   - Print the notebook URL (format: `https://notebooklm.google.com/notebook/<id>`)
+   - Inform user: "Audio generation started (approximately 10–20 minutes). Once complete, you can listen at the following link: [notebook URL]"
+   - Update the report's Audio Review field with the notebook URL
 
 ---
 
@@ -224,7 +219,7 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
 > 📦 來源：[GitHub URL]
 > 🏷️ 版本：vX.X.X
 > ⭐ Stars：X,XXX
-> 🎙️ Audio Review：[音檔連結]（如有）
+> 🎙️ Audio Review：[NotebookLM 連結]（音檔生成中，約 10–20 分鐘）
 
 ---
 
@@ -246,8 +241,7 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
 ## 三、戰略價值評估
 ### 💰 省錢潛力
 ### 🚀 效率提升
-### 📦 新專案機會
-### 💵 創收潛力
+### 🏢 創業機會（含衍生產品：實體 / 虛擬服務）
 ### 🌍 社群影響力
 
 ## 四、同類工具比較（--discover 模式）
@@ -291,8 +285,8 @@ Use the report template below. Write in **Traditional Chinese (繁體中文)**.
 ## Key Principles
 
 - **Language**: Always write reports in Traditional Chinese (繁體中文)
-- **Security**: Be thorough — check every source file, report with file path + line number
-- **Value**: Be creative and ambitious — think beyond obvious uses (revenue, teaching, community)
+- **Security**: Be focused — target security hotspots, report with file path + line number
+- **Value**: Be creative and ambitious — startup ideas must be concrete with a clear business model, not generic suggestions
 - **Speed**: Use DeepWiki first, clone only when needed for security scanning
-- **Audio**: --audio must succeed, never skip or degrade
+- **Audio**: --audio must succeed, never skip or degrade; trigger generation and provide notebook URL (no polling or download)
 - **Comparison**: --discover should find real competitors with high stars, not obscure repos
