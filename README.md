@@ -5,8 +5,8 @@ A Claude Code skill that performs comprehensive GitHub repo analysis — archite
 ## Features
 
 - **Architecture analysis** via DeepWiki MCP (no clone needed for overview)
-- **OWASP Top 10 security scan** with file path, line number, and fix suggestions
-- **5-dimension strategic value assessment** — cost savings, efficiency, new projects, revenue, community impact
+- **OWASP Top 10 security scan** with file path, line number, and fix suggestions (hotspot-focused, not brute-force)
+- **4-dimension strategic value assessment** — cost savings, efficiency, startup opportunities, community impact
 - **Competitor discovery** — auto-find similar repos by stars (`--discover`)
 - **Traditional Chinese audio summary** via NotebookLM (`--audio`)
 - Reports written in **Traditional Chinese (繁體中文)**
@@ -30,7 +30,7 @@ Then restart Claude Code. The `/repo-scout` skill will be available automaticall
 
 | Dependency | Required | Purpose | Install |
 |---|---|---|---|
-| DeepWiki MCP | **Yes** | Repo architecture overview without cloning | `claude mcp add deepwiki -- npx @anthropic-ai/deepwiki-mcp@latest` |
+| DeepWiki MCP | **Yes** | Repo architecture overview without cloning | `claude mcp add -s user -t http deepwiki https://mcp.deepwiki.com/mcp` |
 | NotebookLM MCP | Only for `--audio` | Generate Traditional Chinese audio review | See below |
 
 ### NotebookLM MCP Setup (for `--audio`)
@@ -77,7 +77,7 @@ Then restart Claude Code.
 
 - **Single repo**: `<repo-name>-scout-report.md` — full analysis in Traditional Chinese
 - **Multi-repo**: `<category>-comparison-report.md` — comparison matrix
-- **With `--audio`**: `<repo-name>-audio-review.mp3` — podcast-style audio summary
+- **With `--audio`**: NotebookLM notebook URL — podcast-style audio summary (generated in ~10–20 min, listen directly in browser)
 
 ## License
 
